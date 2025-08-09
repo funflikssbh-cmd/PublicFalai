@@ -1,11 +1,27 @@
+import express from 'express';
 import { fal } from "@fal-ai/client";
 
-// Configureer API key
+const app = express();
+const port = process.env.PORT || 8000;
+
+// Middleware
+app.use(express.json());
+
+// Configureer fal
 fal.config({
   credentials: process.env.FAL_KEY
 });
 
-async function runFal() {
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'Fal.ai service is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Video generatie endpoint
+app.post('/generate', async (req, res) => {
   try {
     console.log("Starting video generation...");
     
@@ -16,7 +32,7 @@ async function runFal() {
       logs: true,
       onQueueUpdate: (update) => {
         if (update.status === "IN_PROGRESS") {
-          update.logs.map((log) => log.message).forEach(console.log);
+          console.log('Progress:', update.logs?.map(log => log.message).join('\n'));
         }
       }
     });
@@ -26,12 +42,23 @@ async function runFal() {
     console.log("=== REQUEST ID ===");
     console.log(result.requestId);
     
-    process.exit(0);
+    res.json({
+      success: true,
+      data: result.data,
+      requestId: result.requestId,
+      timestamp: new Date().toISOString()
+    });
     
   } catch (error) {
     console.error("Error:", error);
-    process.exit(1);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
   }
-}
+});
 
-runFal();
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
