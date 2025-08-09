@@ -7,6 +7,8 @@ fal.config({
 
 async function runFal() {
   try {
+    console.log("Starting video generation...");
+    
     const result = await fal.subscribe("fal-ai/veo3", {
       input: {
         prompt: "A casual street interview on a busy New York City sidewalk in the afternoon. The interviewer holds a plain, unbranded microphone and asks: Have you seen Google's new Veo3 model? It is a super good model. Person replies: Yeah I saw it, it's already available on fal. It's crazy good."
@@ -19,10 +21,16 @@ async function runFal() {
       }
     });
     
+    console.log("=== RESULT ===");
     console.log(result.data);
+    console.log("=== REQUEST ID ===");
     console.log(result.requestId);
+    
+    process.exit(0);
+    
   } catch (error) {
     console.error("Error:", error);
+    process.exit(1);
   }
 }
 
