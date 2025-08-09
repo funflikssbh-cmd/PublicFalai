@@ -23,11 +23,21 @@ app.get('/', (req, res) => {
 // Video generatie endpoint
 app.post('/generate', async (req, res) => {
   try {
-    console.log("Starting video generation...");
+    const { prompt } = req.body;
+    
+    if (!prompt) {
+      return res.status(400).json({
+        success: false,
+        error: 'Prompt is required',
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    console.log("Starting video generation with prompt:", prompt);
     
     const result = await fal.subscribe("fal-ai/veo3", {
       input: {
-        prompt: "A casual street interview on a busy New York City sidewalk in the afternoon. The interviewer holds a plain, unbranded microphone and asks: Have you seen Google's new Veo3 model? It is a super good model. Person replies: Yeah I saw it, it's already available on fal. It's crazy good."
+        prompt: prompt
       },
       logs: true,
       onQueueUpdate: (update) => {
