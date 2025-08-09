@@ -1,15 +1,18 @@
-FROM python:3.11-slim
+FROM node:18-slim
 
 WORKDIR /app
 
-# Installeer benodigde packages
-RUN pip install fal-client fastapi uvicorn
+# Kopieer package files
+COPY package*.json ./
 
-# Kopieer applicatie bestanden
+# Installeer dependencies
+RUN npm install
+
+# Kopieer rest van de code
 COPY . .
 
 # Expose poort
 EXPOSE 8000
 
 # Start de applicatie
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["npm", "start"]
